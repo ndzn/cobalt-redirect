@@ -1,0 +1,19 @@
+name = "kkyoutube-redirect"
+main = "src/index.ts"
+compatibility_date = "2026-06-01"
+
+[[routes]]
+pattern = "kkyoutube.com"
+custom_domain = true
+
+[[routes]]
+pattern = "www.kkyoutube.com"
+custom_domain = true
+
+[[routes]]
+pattern = "music.kkyoutube.com"
+custom_domain = true
+
+[[routes]]
+pattern = "m.kkyoutube.com"
+custom_domain = true
