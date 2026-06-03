@@ -21,7 +21,7 @@ You'll be 302'd to a random working cobalt frontend with the URL pre-filled, and
 
 ### Bookmarklet
 
-Drag this to your bookmarks bar (or visit [kkyoutube.com](https://kkyoutube.com) for a draggable copy) — click it on any YouTube tab to jump to the equivalent kkyoutube URL:
+Drag this to your bookmarks bar (or visit [kkyoutube.com](https://kkyoutube.com) for a draggable copy) - click it on any YouTube tab to jump to the equivalent kkyoutube URL:
 
 ```js
 javascript:(()=>{const u=location.href;const r=u.replace(/^(https?:\/\/)(www\.|m\.|music\.)?youtube\.com/,'$1$2kkyoutube.com');if(r!==u)open(r);})();
