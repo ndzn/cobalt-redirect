@@ -35,6 +35,18 @@ javascript:(()=>{const u=location.href;const r=u.replace(/^(https?:\/\/)(www\.|m
 
 If the directory is unreachable or the sub-pool is empty, the Worker falls back to [cobalt.tools](https://cobalt.tools) directly.
 
+## Safety notice
+
+> [!WARNING]
+> kkyoutube sends you to community-run cobalt instances. they can potentially pose privacy & safety risks. bad instances can:
+>
+> 1. redirect you away from cobalt and try to scam you.
+> 2. log all information about your requests, store it forever, and use it to track you.
+> 3. serve you malicious files (such as malware).
+> 4. force you to watch ads, or make you pay for downloading.
+>
+> after the redirect, we can't protect you. please be mindful of what instances to use and always trust your gut. if anything feels off, leave the page and use [cobalt.tools](https://cobalt.tools) directly instead.
+
 ## Deploy
 
 ```bash

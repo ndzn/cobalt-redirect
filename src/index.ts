@@ -8,10 +8,31 @@ export default {
   async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
 
-    if (url.pathname === "/" && url.search === "") {
-      return new Response(LANDING_HTML, {
-        headers: { "content-type": "text/html; charset=utf-8" },
+    if (url.pathname === "/favicon.ico") {
+      return new Response(null, {
+        status: 204,
+        headers: { "cache-control": "public, max-age=86400" },
       });
+    }
+    if (url.pathname === "/robots.txt") {
+      return new Response("User-agent: *\nDisallow: /\n", {
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          "cache-control": "public, max-age=86400",
+        },
+      });
+    }
+
+    if (url.pathname === "/") {
+      const u = url.searchParams.get("u");
+      if (u) {
+        return redirectToFrontend(u, pickPoolKeyForUrl(u));
+      }
+      if (url.search === "") {
+        return new Response(LANDING_HTML, {
+          headers: { "content-type": "text/html; charset=utf-8" },
+        });
+      }
     }
 
     const sub =
@@ -19,16 +40,30 @@ export default {
       url.hostname.startsWith("m.") ? "m" :
       "www";
     const target = `https://${sub}.youtube.com${url.pathname}${url.search}`;
-    const frontend = await pickFrontend(pickPoolKey(url));
-    const redirect = `${frontend}/?u=${encodeURIComponent(target)}`;
-    return Response.redirect(redirect, 302);
+    return redirectToFrontend(target, pickPoolKey(url));
   },
 } satisfies ExportedHandler;
+
+async function redirectToFrontend(target: string, poolKey: string): Promise<Response> {
+  const frontend = await pickFrontend(poolKey);
+  return Response.redirect(`${frontend}/?u=${encodeURIComponent(target)}`, 302);
+}
 
 function pickPoolKey(url: URL): string {
   if (url.pathname.startsWith("/shorts/")) return "youtube-shorts";
   if (url.hostname.startsWith("music.")) return "youtube-music";
   return "youtube";
+}
+
+function pickPoolKeyForUrl(u: string): string {
+  try {
+    const parsed = new URL(u);
+    if (parsed.pathname.startsWith("/shorts/")) return "youtube-shorts";
+    if (parsed.hostname === "music.youtube.com") return "youtube-music";
+    return "youtube";
+  } catch {
+    return "youtube";
+  }
 }
 
 async function pickFrontend(preferred: string): Promise<string> {
@@ -78,6 +113,12 @@ const LANDING_HTML = `<!doctype html>
   .bm:hover { background: #242424; }
   hr { border: none; border-top: 1px solid rgba(255,255,255,0.045); margin: 2rem 0; }
   small { display: block; font-size: 12.5px; color: #818181; line-height: 1.4; }
+  .notice { background: #191919; border-radius: 11px; padding: 1rem 1.25rem; box-shadow: 0 0 0 1px rgba(255,255,255,0.08) inset; margin: 2rem 0 1rem; }
+  .notice .title { display: flex; align-items: center; gap: 8px; font-weight: 500; margin: 0 0 .4rem; }
+  .notice .warn { color: #ed2236; font-size: 1.1em; }
+  .notice ol { padding-inline-start: 1.5rem; margin: .5rem 0; }
+  .notice li { margin: .3rem 0; }
+  .notice p:last-child { margin-bottom: 0; }
 </style>
 </head>
 <body>
@@ -86,6 +127,18 @@ const LANDING_HTML = `<!doctype html>
 <p>Example: <code>youtube.com/watch?v=abc</code> → <code>kkyoutube.com/watch?v=abc</code></p>
 <p>Or drag this to your bookmarks bar and click it on any YouTube tab:</p>
 <p><a class="bm" href="${BOOKMARKLET}">↓ kkyoutube</a></p>
+<div class="notice">
+<p class="title"><span class="warn">⚠</span> important safety notice</p>
+<p>kkyoutube sends you to community-run cobalt instances. they can potentially pose privacy &amp; safety risks.</p>
+<p>bad instances can:</p>
+<ol>
+<li>redirect you away from cobalt and try to scam you.</li>
+<li>log all information about your requests, store it forever, and use it to track you.</li>
+<li>serve you malicious files (such as malware).</li>
+<li>force you to watch ads, or make you pay for downloading.</li>
+</ol>
+<p>after the redirect, we can't protect you. please be mindful of what instances to use and always trust your gut. if anything feels off, leave the page and use <a href="https://cobalt.tools">cobalt.tools</a> directly instead.</p>
+</div>
 <hr>
 <small>Frontends sourced from <a href="https://cobalt.directory">cobalt.directory</a>, refreshed every few minutes. Random pick per request.</small>
 </body>
